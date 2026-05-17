@@ -1,0 +1,20 @@
+# Local configuration with engagement scope and any API tokens
+.env
+
+# macOS
+.DS_Store
+
+# Editor / harness scratch
+.claude/
+.vscode/
+.idea/
+
+# Stray local state files
+ruvector.db
+*.log
+
+# Python build artifacts (in case anyone runs server.py outside Docker)
+__pycache__/
+*.py[cod]
+.venv/
+venv/

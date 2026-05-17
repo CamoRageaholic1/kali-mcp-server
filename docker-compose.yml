@@ -1,0 +1,58 @@
+# Kali Security MCP Server -- Compose definition
+#
+# Usage:
+#   cp .env.example .env      # then edit .env, set MCP_ALLOWED_TARGETS
+#   docker compose build
+#   docker compose run --rm mcp        # stdio transport (interactive)
+#
+# For HTTP transport, set MCP_TRANSPORT=http in .env, uncomment the ports
+# block below, and use:  docker compose up
+
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_ZAP: "true"
+        INSTALL_WORDLISTS: "true"
+    image: kali-security-mcp:latest
+    container_name: kali-security-mcp
+
+    # stdio transport needs an attached stdin for the MCP channel.
+    stdin_open: true
+
+    # ---- Capabilities ------------------------------------------------------
+    # Drop everything, then add back only what nmap's raw-socket scans need.
+    # The matching file capabilities are set on /usr/bin/nmap in the image.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+      - NET_BIND_SERVICE
+
+    # IMPORTANT: do NOT enable no-new-privileges. The non-root user relies on
+    # file capabilities (setcap) on the nmap binary, and the kernel ignores
+    # those when no_new_privs is set -- nmap SYN/OS/UDP scans would break.
+    # security_opt:
+    #   - no-new-privileges:true   # <-- intentionally left disabled
+
+    env_file:
+      - .env
+
+    # Results, ZAP reports, John pot files, etc. persist here.
+    volumes:
+      - mcp-data:/data
+
+    # ---- HTTP transport (optional) ----------------------------------------
+    # Uncomment when MCP_TRANSPORT=http. Bind to localhost only unless you
+    # have deliberately secured the endpoint.
+    # ports:
+    #   - "127.0.0.1:8000:8000"
+
+    restart: "no"
+
+volumes:
+  mcp-data:
+    driver: local
