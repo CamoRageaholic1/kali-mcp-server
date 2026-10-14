@@ -1,5 +1,5 @@
 # MCP server runtime dependencies.
 # Pinned to major versions known to expose the APIs server.py relies on.
 
-fastmcp>=3.0.0,<4.0.0
+fastmcp>=4.1.0,<5.0.0
 zaproxy>=0.6.0,<1.0.0
